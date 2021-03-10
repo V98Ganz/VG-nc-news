@@ -8,7 +8,7 @@
     "query": "psql -f test_query.sql > output.txt",
     "migrate-make": "knex migrate:make",
     "migrate-latest": "knex migrate:latest",
-    "migrate": "knex migrate:rollback",
+    "migrate-rollback": "knex migrate:rollback",
     "seed-test": "NODE_ENV=test knex seed:run",
     "test-utils": "jest utils.test.js",
     "test-app": "jest app.test.js --watch"
