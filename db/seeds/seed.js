@@ -10,7 +10,7 @@ const {
   formatItems
 } = require('../utils/data-manipulation');
 
-exports.seed = function (knex) {
+exports.seed = (knex) => {
   return knex.migrate
     .rollback()
     .then(() => knex.migrate.latest())
@@ -42,6 +42,6 @@ exports.seed = function (knex) {
         'created_by',
         'author'
       );
-      return knex('comments').insert(lastFormatComments);
-    });
+      return knex('comments').insert(lastFormatComments).returning('*')
+    })
 };

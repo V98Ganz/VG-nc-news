@@ -5,12 +5,13 @@
   "main": "index.js",
   "scripts": {
     "setup-dbs": "psql -f ./db/setup.sql",
-    "seed": "knex seed:run",
-    "test": "jest --watch",
+    "query": "psql -f test_query.sql > output.txt",
     "migrate-make": "knex migrate:make",
     "migrate-latest": "knex migrate:latest",
-    "migrate-rollback": "knex migrate:rollback",
-    "query": "psql -f test_query.sql > output.txt"
+    "migrate": "knex migrate:rollback",
+    "seed-test": "NODE_ENV=test knex seed:run",
+    "test-utils": "jest utils.test.js",
+    "test-app": "jest app.test.js --watch"
   },
   "repository": {
     "type": "git",
