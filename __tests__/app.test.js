@@ -131,7 +131,6 @@ describe("/api", () => {
               .get('/api/articles?topic=cats&author=rogersop')
               .expect(200)
               .then(({body: {articles}}) => {
-                console.log(articles);
                 expect(articles.length).toBe(1)
                 const filterByBoth = articles.every(article => {
                   return article.topic === 'cats' && article.author === 'rogersop'
@@ -269,4 +268,64 @@ describe("/api", () => {
       });
     });
   });
+  describe('/comments', () => {
+    describe('.../:comments_id', () => {
+      describe('PATCH', () => {
+        test('votes can be incremented', () => {
+          return request(app)
+            .patch('/api/comments/4')
+            .expect(200)
+            .send({inc_votes: 50})
+            .then(({body: {comment}}) => {
+              expect(comment).toEqual([
+                {
+                  comment_id: 4,
+                  author: 'icellusedkars',
+                  article_id: 1,
+                  votes: -50,
+                  created_at: '2014-11-23T12:36:03.389Z',
+                  body: ' I carry a log — yes. Is it funny to you? It is not to me.'
+                }
+              ])
+            })
+        })
+        test('votes can be reduced', () => {
+          return request(app)
+            .patch('/api/comments/4')
+            .expect(200)
+            .send({inc_votes: -50})
+            .then(({body: {comment}}) => {
+              expect(comment).toEqual([
+                {
+                  comment_id: 4,
+                  author: 'icellusedkars',
+                  article_id: 1,
+                  votes: -150,
+                  created_at: '2014-11-23T12:36:03.389Z',
+                  body: ' I carry a log — yes. Is it funny to you? It is not to me.'
+                }
+              ])
+            })
+        })
+      })
+      describe('DELETE', () => {
+        test('204 - comment has been deleted', () => {
+          return request(app)
+            .delete('/api/comments/4')
+            .expect(204)
+            .then(() => {
+              return dbConnection
+                .select('*')
+                .from('comments')
+                .where({
+                  comment_id: 4
+                })
+            })
+            .then((comment) => {
+              expect(comment).toHaveLength(0)
+            })
+        })
+      })
+    })
+  })
 });
