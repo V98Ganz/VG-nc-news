@@ -53,18 +53,59 @@ exports.createCommentByArticleId = (id, contents) => {
 
 exports.fetchCommentsByArticleId = (id, query) => {
   return dbConnection
-    .from('comments')
+    .from("comments")
     .where({
-      article_id: id
+      article_id: id,
     })
-    .returning('comment_id', 'votes', 'created_at', 'author', 'body')
-    .modify(queryBuilder => {
+    .returning("comment_id", "votes", "created_at", "author", "body")
+    .modify((queryBuilder) => {
+      let order = "desc";
+      if (query.order) {
+        order = query.order;
+      }
+      if (query.sort_by) {
+        queryBuilder.orderBy(query.sort_by, order);
+      }
+    });
+};
+
+exports.fetchArticles = (query) => {
+  return dbConnection
+    .select(
+      "articles.author",
+      "title",
+      "articles.article_id",
+      "topic",
+      "articles.created_at",
+      "articles.votes"
+    )
+    .from("articles")
+    .count("comments.article_id as comment_count")
+    .groupBy("articles.article_id")
+    .leftJoin("comments", "articles.article_id", "=", "comments.article_id")
+    .modify((queryBuilder) => {
       let order = 'desc';
+      let column = 'created_at';
+      let filterByAuthor = true;
+      let filterByTopic = true;
+      if (query.sort_by) {
+        column = query.sort_by
+      }
       if (query.order) {
         order = query.order
       }
-      if (query.sort_by) {
-        queryBuilder.orderBy(query.sort_by, order)
+      if (query.author) {
+        filterByAuthor = {
+          'articles.author': query.author
+        } 
       }
+      if (query.topic) {
+        filterByTopic = {
+          'articles.topic': query.topic
+        }
+      }
+      queryBuilder.where(filterByAuthor)
+      queryBuilder.where(filterByTopic)
+      queryBuilder.orderBy(column, order)
     })
-}
+};

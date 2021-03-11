@@ -58,12 +58,90 @@ describe("/api", () => {
   });
   describe("/articles", () => {
     describe("GET", () => {
-      describe('just articles', () => {
-        test('200 - responds with an array of article objects', () => {
+      describe("just articles", () => {
+        test("200 - responds with an array of article objects", () => {
           return request(app)
-            .get('/api/articles')
-        })
-      })
+            .get("/api/articles")
+            .expect(200)
+            .then(({ body: { articles } }) => {
+              expect(articles.length).toBe(12);
+
+              articles.forEach((article) => {
+                expect(article).toMatchObject({
+                  author: expect.any(String),
+                  title: expect.any(String),
+                  article_id: expect.any(Number),
+                  topic: expect.any(String),
+                  created_at: expect.any(String),
+                  votes: expect.any(Number),
+                  comment_count: expect.any(String),
+                });
+              });
+            });
+        });
+        describe("Accepts queries, defaults to date", () => {
+          test("testing defaults", () => {
+            return request(app)
+              .get("/api/articles")
+              .expect(200)
+              .then(({ body: { articles } }) => {
+                expect(articles.length).toBe(12);
+                expect(articles).toBeSortedBy("created_at", {
+                  descending: true,
+                });
+              });
+          });
+          test("can sort_by valid columns and set order", () => {
+            return request(app)
+              .get("/api/articles?sort_by=title&order=asc")
+              .expect(200)
+              .then(({ body: { articles } }) => {
+                expect(articles.length).toBe(12);
+                expect(articles).toBeSortedBy("title", {
+                  descending: false,
+                });
+              });
+          });
+          test("we can filter by author", () => {
+            return request(app)
+              .get("/api/articles?author=rogersop")
+              .expect(200)
+              .then(({ body: { articles } }) => {
+                expect(articles.length).toBe(3);
+                const filteredByAuthor = articles.every((article) => {
+                  return article.author === "rogersop";
+                });
+                expect(filteredByAuthor).toBe(true);
+              });
+          });
+          test("we can filter by topic", () => {
+            return request(app)
+              .get("/api/articles?topic=mitch")
+              .expect(200)
+              .then(({ body: { articles } }) => {
+                expect(articles.length).toBe(11);
+                const filteredByTopic = articles.every((article) => {
+                  return article.topic === "mitch";
+                });
+                expect(filteredByTopic).toBe(true);
+              });
+          });
+          test('can filter by both at the same time', () => {
+            return request(app)
+              .get('/api/articles?topic=cats&author=rogersop')
+              .expect(200)
+              .then(({body: {articles}}) => {
+                console.log(articles);
+                expect(articles.length).toBe(1)
+                const filterByBoth = articles.every(article => {
+                  return article.topic === 'cats' && article.author === 'rogersop'
+                });
+                expect(filterByBoth).toBe(true)
+              })
+          })
+          //describe(QUERY ERRORS)
+        });
+      });
       test("200 - responds with the required article by it's id", () => {
         return request(app)
           .get("/api/articles/1")
@@ -161,36 +239,31 @@ describe("/api", () => {
               .get("/api/articles/1/comments")
               .expect(200)
               .then(({ body: { comments } }) => {
-                expect(comments).toBeSortedBy(
-                  "created_at", {
-                  descending: true
+                expect(comments).toBeSortedBy("created_at", {
+                  descending: true,
                 });
               });
           });
-          test('sort_by and order - more examples - by votes', () => {
+          test("sort_by and order - more examples - by votes", () => {
             return request(app)
-              .get('/api/articles/1/comments?sort_by=votes&order=asc')
+              .get("/api/articles/1/comments?sort_by=votes&order=asc")
               .expect(200)
-              .then(({body: {comments}}) => {
-                expect(comments).toBeSortedBy(
-                  'votes', {
-                    descending: false
-                  }
-                )
-              })
-          })
-          test('if no order query is provided, it defaults to descending', () => {
+              .then(({ body: { comments } }) => {
+                expect(comments).toBeSortedBy("votes", {
+                  descending: false,
+                });
+              });
+          });
+          test("if no order query is provided, it defaults to descending", () => {
             return request(app)
-              .get('/api/articles/1/comments?sort_by=author')
+              .get("/api/articles/1/comments?sort_by=author")
               .expect(200)
-              .then(({body: {comments}}) => {
-                expect(comments).toBeSortedBy(
-                  'author', {
-                    descending: true
-                  }
-                )
-              })
-          })
+              .then(({ body: { comments } }) => {
+                expect(comments).toBeSortedBy("author", {
+                  descending: true,
+                });
+              });
+          });
           //describe(ERRORS)
         });
       });
