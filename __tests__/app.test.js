@@ -58,6 +58,12 @@ describe("/api", () => {
   });
   describe("/articles", () => {
     describe("GET", () => {
+      describe('just articles', () => {
+        test('200 - responds with an array of article objects', () => {
+          return request(app)
+            .get('/api/articles')
+        })
+      })
       test("200 - responds with the required article by it's id", () => {
         return request(app)
           .get("/api/articles/1")
@@ -134,20 +140,58 @@ describe("/api", () => {
       describe("GET", () => {
         test("200 - returns an array of comments for the given article_id", () => {
           return request(app)
-            .get('/api/articles/5/comments')
+            .get("/api/articles/5/comments")
             .expect(200)
-            .then(({body: {comments}}) => {
-              comments.forEach(comment => {
+            .then(({ body: { comments } }) => {
+              comments.forEach((comment) => {
                 expect(comment).toMatchObject({
                   comment_id: expect.any(Number),
                   votes: expect.any(Number),
                   created_at: expect.any(String),
                   author: expect.any(String),
-                  body: expect.any(String)
-                })
+                  body: expect.any(String),
+                });
+              });
+              expect(comments.length).toBe(2);
+            });
+        });
+        describe("Accepts queries", () => {
+          test("sort_by and order sorts the comments by any valid column, asc or desc, defaults to created_at", () => {
+            return request(app)
+              .get("/api/articles/1/comments")
+              .expect(200)
+              .then(({ body: { comments } }) => {
+                expect(comments).toBeSortedBy(
+                  "created_at", {
+                  descending: true
+                });
+              });
+          });
+          test('sort_by and order - more examples - by votes', () => {
+            return request(app)
+              .get('/api/articles/1/comments?sort_by=votes&order=asc')
+              .expect(200)
+              .then(({body: {comments}}) => {
+                expect(comments).toBeSortedBy(
+                  'votes', {
+                    descending: false
+                  }
+                )
               })
-              expect(comments.length).toBe(2)
-            })
+          })
+          test('if no order query is provided, it defaults to descending', () => {
+            return request(app)
+              .get('/api/articles/1/comments?sort_by=author')
+              .expect(200)
+              .then(({body: {comments}}) => {
+                expect(comments).toBeSortedBy(
+                  'author', {
+                    descending: true
+                  }
+                )
+              })
+          })
+          //describe(ERRORS)
         });
       });
     });
