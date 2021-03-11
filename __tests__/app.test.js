@@ -105,7 +105,7 @@ describe("/api", () => {
       });
       //describe(ERRORS)
     });
-    describe("/articles/...", () => {
+    describe("/articles/.../comments", () => {
       describe("POST", () => {
         test("201 - created a new comment on designated article", () => {
           return request(app)
@@ -116,11 +116,6 @@ describe("/api", () => {
               body: "Yes, although you look more like a donkey",
             })
             .then(({ body }) => {
-              // const date = () => {
-              //   const dateNow = Date.now();
-              //   const convertDate = new Date(dateNow);
-              //   return convertDate.toISOString()
-              // }
               expect(body).toEqual({
                 comment: [
                   {
@@ -136,7 +131,25 @@ describe("/api", () => {
             });
         });
       });
-      
+      describe("GET", () => {
+        test("200 - returns an array of comments for the given article_id", () => {
+          return request(app)
+            .get('/api/articles/5/comments')
+            .expect(200)
+            .then(({body: {comments}}) => {
+              comments.forEach(comment => {
+                expect(comment).toMatchObject({
+                  comment_id: expect.any(Number),
+                  votes: expect.any(Number),
+                  created_at: expect.any(String),
+                  author: expect.any(String),
+                  body: expect.any(String)
+                })
+              })
+              expect(comments.length).toBe(2)
+            })
+        });
+      });
     });
   });
 });

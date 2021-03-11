@@ -32,19 +32,30 @@ exports.updateArticleById = (id, votes) => {
 };
 
 exports.createCommentByArticleId = (id, contents) => {
-    const insertIt = {
-        author: contents.username,
-        body: contents.body,
+  const insertIt = {
+    author: contents.username,
+    body: contents.body,
+    article_id: id,
+    votes: 0,
+    created_at: "2021-03-10T16:36:19.310Z",
+  };
+  return (
+    dbConnection
+      // .select('*')
+      .from("comments")
+      .insert(insertIt)
+      .where({
         article_id: id,
-        votes: 0,
-        created_at: "2021-03-10T16:36:19.310Z"
-    }
-    return dbConnection
-        // .select('*')
-        .from('comments')
-        .insert(insertIt)
-        .where({
-            article_id: id
-        })
-        .returning('*')
+      })
+      .returning("*")
+  );
+};
+
+exports.fetchCommentsByArticleId = (id) => {
+  return dbConnection
+    .from('comments')
+    .where({
+      article_id: id
+    })
+    .returning('comment_id', 'votes', 'created_at', 'author', 'body')
 }
