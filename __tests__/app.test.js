@@ -141,20 +141,28 @@ describe("/api", () => {
               })
           })
           describe('ERRORS - QUERIES', () => {
-            test('400 - invalid column', () => {
+            test('404 - invalid column', () => {
               return request(app)
-                .get('/api/articles?sort_by=age')
-                .expect(400)
+                .get('/api/articles?sort_by=color')
+                .expect(404)
                 .then(({body: {msg}}) => {
-                  expect(msg).toBe('Bad Request')
+                  expect(msg).toBe('No such column')
                 })
             })
-            test('400 - invalid query data type', () => {
+            test('404 - no such topic', () => {
               return request(app)
-                .get('/api/articles?4=cats')
-                .expect(200)
-                .then(({body}) => {
-                  // console.log(body)
+                .get('/api/articles?topic=jokes')
+                .expect(404)
+                .then(({body: {msg}}) => {
+                  expect(msg).toBe('No such topic')
+                })
+            })
+            test('404 - non-existent author', () => {
+              return request(app)
+                .get('/api/articles?author=vitalie')
+                .expect(404)
+                .then(({body: {msg}}) => {
+                  expect(msg).toBe('User not found')
                 })
             })
           })
@@ -180,7 +188,41 @@ describe("/api", () => {
             });
           });
       });
-      //describe('ERRORS')
+      test('200 - more examples', () => {
+        return request(app)
+          .get('/api/articles/2')
+          .expect(200)
+          .then(({body}) => {
+            expect(body.article).toMatchObject({
+                  article_id: expect.any(Number),
+                  title: expect.any(String),
+                  author: expect.any(String),
+                  body: expect.any(String),
+                  topic: expect.any(String),
+                  created_at: expect.any(String),
+                  votes: expect.any(Number),
+                  comment_count: expect.any(String),
+            });
+          })
+      })
+      describe('ERRORS', () => {
+        test('405 - Method not found', () => {
+          return request(app)
+            .patch('/api/articles')
+            .expect(405)
+            .then(({body: {msg}}) => {
+              expect(msg).toBe('Method not allowed')
+            })
+        })
+        test('404 - article id not found', () => {
+          return request(app)
+            .get('/api/articles/88')
+            .expect(404)
+            .then(({body: {msg}}) => {
+              expect(msg).toBe('Article not found')
+            })
+        })
+      })
     });
     describe("PATCH", () => {
       test("200 - patch request has been accepted by the necessary votes", () => {
