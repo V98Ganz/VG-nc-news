@@ -36,14 +36,13 @@ describe("/api", () => {
           .expect(200)
           .then(({ body }) => {
             expect(body).toEqual({
-              user: [
+              user:
                 {
                   username: "butter_bridge",
                   name: "jonny",
                   avatar_url:
                     "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
                 },
-              ],
             });
           });
       });
@@ -141,7 +140,24 @@ describe("/api", () => {
                 expect(filterByBoth).toBe(true)
               })
           })
-          //describe(QUERY ERRORS)
+          describe('ERRORS - QUERIES', () => {
+            test('400 - invalid column', () => {
+              return request(app)
+                .get('/api/articles?sort_by=age')
+                .expect(400)
+                .then(({body: {msg}}) => {
+                  expect(msg).toBe('Bad Request')
+                })
+            })
+            test('400 - invalid query data type', () => {
+              return request(app)
+                .get('/api/articles?4=cats')
+                .expect(200)
+                .then(({body}) => {
+                  // console.log(body)
+                })
+            })
+          })
         });
       });
       test("200 - responds with the required article by it's id", () => {
@@ -150,7 +166,7 @@ describe("/api", () => {
           .expect(200)
           .then(({ body }) => {
             expect(body).toEqual({
-              article: [
+              article:
                 {
                   article_id: 1,
                   title: "Living in the shadow of a great man",
@@ -161,7 +177,6 @@ describe("/api", () => {
                   votes: 100,
                   comment_count: "13",
                 },
-              ],
             });
           });
       });
@@ -175,7 +190,7 @@ describe("/api", () => {
           .expect(200)
           .then(({ body }) => {
             expect(body).toEqual({
-              article: [
+              article:
                 {
                   article_id: 1,
                   title: "Living in the shadow of a great man",
@@ -185,7 +200,6 @@ describe("/api", () => {
                   created_at: "2018-11-15T12:21:54.171Z",
                   votes: 99,
                 },
-              ],
             });
           });
       });
@@ -201,18 +215,14 @@ describe("/api", () => {
               username: "rogersop",
               body: "Yes, although you look more like a donkey",
             })
-            .then(({ body }) => {
-              expect(body).toEqual({
-                comment: [
-                  {
+            .then(({ body: {comment} }) => {
+              expect(comment).toMatchObject({
                     comment_id: 19,
                     author: "rogersop",
                     article_id: 11,
                     votes: 0,
-                    created_at: "2021-03-10T16:36:19.310Z",
+                    created_at: expect.any(String),
                     body: "Yes, although you look more like a donkey",
-                  },
-                ],
               });
             });
         });
@@ -280,7 +290,7 @@ describe("/api", () => {
             .expect(200)
             .send({inc_votes: 50})
             .then(({body: {comment}}) => {
-              expect(comment).toEqual([
+              expect(comment).toEqual(
                 {
                   comment_id: 4,
                   author: 'icellusedkars',
@@ -289,7 +299,7 @@ describe("/api", () => {
                   created_at: '2014-11-23T12:36:03.389Z',
                   body: ' I carry a log — yes. Is it funny to you? It is not to me.'
                 }
-              ])
+              )
             })
         })
         test('votes can be reduced', () => {
@@ -298,7 +308,7 @@ describe("/api", () => {
             .expect(200)
             .send({inc_votes: -50})
             .then(({body: {comment}}) => {
-              expect(comment).toEqual([
+              expect(comment).toEqual(
                 {
                   comment_id: 4,
                   author: 'icellusedkars',
@@ -307,7 +317,7 @@ describe("/api", () => {
                   created_at: '2014-11-23T12:36:03.389Z',
                   body: ' I carry a log — yes. Is it funny to you? It is not to me.'
                 }
-              ])
+              )
             })
         })
       })

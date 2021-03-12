@@ -15,10 +15,10 @@ exports.seed = (knex) => {
     .rollback()
     .then(() => knex.migrate.latest())
     .then(() => {
-      return knex('users').insert(userData).returning('*');
+      return knex('users').insert(userData);
     })
     .then(() => {
-      return knex('topics').insert(topicData).returning('*');
+      return knex('topics').insert(topicData);
     })
     .then(() => {
       const formattedArticles = modifyTimeStamp(articleData);
@@ -42,6 +42,6 @@ exports.seed = (knex) => {
         'created_by',
         'author'
       );
-      return knex('comments').insert(lastFormatComments).returning('*')
+      return knex('comments').insert(lastFormatComments)
     })
 };

@@ -5,7 +5,8 @@ exports.modifyTimeStamp = (array) => {
     const newArt = { ...article };
     const toConvert = article['created_at'];
     const dateTime = new Date(toConvert);
-    newArt.created_at = dateTime.toISOString();
+    newArt.created_at = dateTime;
+    // .toISOString()
     return newArt;
   });
 
@@ -14,7 +15,7 @@ exports.modifyTimeStamp = (array) => {
 
 exports.creatRefObj = (array, key, value) => {
   const newObj = {};
-  array.map((item) => {
+  array.forEach((item) => {
     const newKey = item[key];
     const newValue = item[value];
     newObj[newKey] = newValue;

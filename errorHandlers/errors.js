@@ -1,3 +1,11 @@
+exports.sqlErrors = (err, req, res, next) => {
+  // console.log(err.code)
+  const sqlBadRequests = ['42703'];
+  if (sqlBadRequests.includes(err.code)) {
+    res.status(400).send({msg: 'Bad Request'})
+  } else next(err)
+}
+
 exports.handleCustomErrors = (err, req, res, next) => {
   if (err.status) {
     res.status(err.status).send({msg: err.msg})

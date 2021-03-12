@@ -5,7 +5,7 @@ exports.getUsernameByName = (req, res, next) => {
     Promise.all([fetchUserByUsername(username), checkIfUserExists(username)])
   .then(([user]) => {
     if (user.length)
-    res.status(200).send({user});
+    res.status(200).send({user: user[0]});
   })
   .catch(next)
 };
