@@ -47,14 +47,17 @@ describe("/api", () => {
             });
           });
       });
-      // describe('ERROR handling', () => {
-      //   test('404 - if requested user doesn\'t exist', () => {
-      //     return request(app)
-      //       .get('/api/users/vitalie')
-      //       .expect(404)
-      //   })
-      // })
     });
+    describe('404 - user not found', () => {
+      test('no user with that username', () => {
+        return request(app)
+          .get('/api/users/lois')
+          .expect(404)
+          .then(({body}) => {
+            expect(body.msg).toBe(`User not found`)
+          })
+      })
+    })
   });
   describe("/articles", () => {
     describe("GET", () => {

@@ -5,7 +5,7 @@ exports.patchCommentsById = (req, res, next) => {
   const {inc_votes} = req.body;
   updateCommentById(comment_id, inc_votes).then((comment) => {
     res.status(200).send({ comment });
-  });
+  })
 };
 
 exports.deleteCommentById = (req, res, next) => {
