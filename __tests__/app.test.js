@@ -141,10 +141,10 @@ describe("/api", () => {
               })
           })
           describe('ERRORS - QUERIES', () => {
-            test('404 - invalid column', () => {
+            test('405 - invalid column', () => {
               return request(app)
                 .get('/api/articles?sort_by=color')
-                .expect(404)
+                .expect(405)
                 .then(({body: {msg}}) => {
                   expect(msg).toBe('No such column')
                 })
@@ -214,6 +214,14 @@ describe("/api", () => {
               expect(msg).toBe('Method not allowed')
             })
         })
+        test('405 - more examples', () => {
+          return request(app)
+            .put('/api/articles/1')
+            .expect(405)
+            .then(({body: {msg}}) => {
+              expect(msg).toBe('Method not allowed')
+            })
+        })
         test('404 - article id not found', () => {
           return request(app)
             .get('/api/articles/88')
@@ -222,14 +230,22 @@ describe("/api", () => {
               expect(msg).toBe('Article not found')
             })
         })
+        test('more errors examples', () => {
+          return request(app)
+            .get('/api/articles/dog')
+            .expect(405)
+            .then(({body: {msg}}) => {
+              expect(msg).toBe('Invalid text representation')
+            })
+        })
       })
     });
     describe("PATCH", () => {
-      test("200 - patch request has been accepted by the necessary votes", () => {
+      test("201 - patch request has been accepted by the necessary votes", () => {
         return request(app)
           .patch("/api/articles/1")
           .send({ inc_votes: -1 })
-          .expect(200)
+          .expect(201)
           .then(({ body }) => {
             expect(body).toEqual({
               article:
@@ -245,7 +261,26 @@ describe("/api", () => {
             });
           });
       });
-      //describe(ERRORS)
+      test('200 - patch request contains no body', () => {
+        return request(app)
+          .patch('/api/articles/1')
+          .send()
+          .expect(200)
+          .then(({body}) => {
+            expect(body).toEqual({
+              article:
+                {
+                  article_id: 1,
+                  title: "Living in the shadow of a great man",
+                  author: "butter_bridge",
+                  body: "I find this existence challenging",
+                  topic: "mitch",
+                  created_at: "2018-11-15T12:21:54.171Z",
+                  votes: 100,
+                },
+            })
+          })
+      })
     });
     describe("/articles/.../comments", () => {
       describe("POST", () => {
@@ -268,6 +303,19 @@ describe("/api", () => {
               });
             });
         });
+        describe('ERRORS - POST', () => {
+          test('400 - bad request if required keys aren\'t input', () => {
+            return request(app)
+              .post('/api/articles/1/comments')
+              .expect(400)
+              .send({
+                body: 'Hey mamma'
+              })
+              .then(({body: {msg}}) => {
+                expect(msg).toBe('Please provide all the required keys')
+              })
+          })
+        })
       });
       describe("GET", () => {
         test("200 - returns an array of comments for the given article_id", () => {
@@ -318,9 +366,58 @@ describe("/api", () => {
                 });
               });
           });
-          //describe(ERRORS)
+          test('more examples', () => {
+            return request(app)
+              .get('/api/articles/1/comments?order=asc')
+              .expect(200)
+              .then(({body: { comments }}) => {
+                expect(comments).toHaveLength(13)
+
+                expect(comments).toBeSortedBy('created_at', {
+                  descending: false
+                })
+              })
+          })
+          describe('ERRORS - Queries', () => {
+            test('405 - not a valid column', () => {
+              return request(app)
+                .get('/api/articles/1/comments?sort_by=country')
+                .expect(405)
+                .then(({body: {msg}}) => {
+                  expect(msg).toBe('No such column')
+                })
+            })
+          })
         });
+        describe('ERRORS - GET', () => {
+          test('404 - article doesn\'t exist', () => {
+            return request(app)
+              .get('/api/articles/1000/comments')
+              .expect(404)
+              .then(({body: {msg}}) => {
+                expect(msg).toBe('Article not found')
+              })
+          })        
+          test('405 - invalid article id', () => {
+            return request(app)
+              .get('/api/articles/uno/comments')
+              .expect(405)
+              .then(({body: {msg}}) => {
+                expect(msg).toBe('Invalid text representation')
+              })
+          })
+        })
       });
+      describe('Errors - GENERAL', () => {
+        test('405 - PUT request not allowed', () => {
+          return request(app)
+            .put('/api/articles/1/comments')
+            .expect(405)
+            .then(({body: {msg}}) => {
+              expect(msg).toBe('Method not allowed')
+            })
+        })
+      })
     });
   });
   describe('/comments', () => {

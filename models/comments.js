@@ -43,11 +43,13 @@ exports.createCommentByArticleId = (id, contents) => {
       .returning("comment_id", "votes", "created_at", "author", "body")
       .modify((queryBuilder) => {
         let order = "desc";
+        let sort_by = 'created_at'
         if (query.order) {
           order = query.order;
         }
         if (query.sort_by) {
-          queryBuilder.orderBy(query.sort_by, order);
+          sort_by = query.sort_by
         }
+        queryBuilder.orderBy(sort_by, order);
       });
   };

@@ -4,6 +4,9 @@ const {
   createCommentByArticleId,
   fetchCommentsByArticleId,
 } = require("../models/comments");
+const {
+  checkIfArticleExists,
+} = require('../models/articles')
 
 exports.patchCommentsById = (req, res, next) => {
   const { comment_id } = req.params;
@@ -27,18 +30,24 @@ exports.deleteCommentById = (req, res, next) => {
 exports.postCommentByArticleId = (req, res, next) => {
   const { article_id } = req.params;
   const contents = req.body;
-  createCommentByArticleId(article_id, contents)
-    .then(([comment]) => {
-      res.status(201).send({ comment });
-    })
-    .catch(next);
+  if (contents.username === undefined || contents.body === undefined) {
+    res.status(400).send({msg: 'Please provide all the required keys'})
+  }
+  else {
+    Promise.all([createCommentByArticleId(article_id, contents), checkIfArticleExists(article_id)])
+      .then(([comment]) => {
+        res.status(201).send({ comment : comment[0]});
+      })
+      .catch(next);
+
+  }
 };
 
 exports.getCommentsByArticleId = (req, res, next) => {
   const { article_id } = req.params;
   const query = req.query;
-  fetchCommentsByArticleId(article_id, query)
-    .then((comments) => {
+  Promise.all([fetchCommentsByArticleId(article_id, query), checkIfArticleExists(article_id)])
+    .then(([comments]) => {
       res.status(200).send({ comments });
     })
     .catch(next);

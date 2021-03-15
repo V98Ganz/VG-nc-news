@@ -20,7 +20,7 @@ exports.fetchArticleById = (id) => {
     });
 };
 
-exports.updateArticleById = (id, votes) => {
+exports.updateArticleById = (id, votes = 0) => {
   return dbConnection
     .select("*")
     .from("articles")

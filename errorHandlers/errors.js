@@ -1,8 +1,13 @@
 exports.sqlErrors = (err, req, res, next) => {
-  // console.log(err.code)
-  const sqlBadRequests = ['42703'];
+  // console.log(err.code.slice(0, 1))
+  const sqlBadRequests = ['42703', '22P02'];
   if (sqlBadRequests.includes(err.code)) {
-    res.status(404).send({msg: 'No such column'})
+    if (err.code.slice(0, 2) === '42') {
+      res.status(405).send({msg: 'No such column'})
+    }
+    if (err.code.slice(0, 2) === '22') {
+      res.status(405).send({msg: 'Invalid text representation'})
+    }
   } else next(err)
 }
 

@@ -19,11 +19,21 @@ exports.getArticlesById = (req, res, next) => {
 exports.patchArticleById = (req, res, next) => {
   const { article_id } = req.params;
   const { inc_votes } = req.body;
-  updateArticleById(article_id, inc_votes)
-    .then(([article]) => {
-      res.status(200).send({ article });
-    })
-    .catch(next);
+  if (inc_votes) {
+    updateArticleById(article_id, inc_votes)
+      .then(([article]) => {
+        res.status(201).send({ article });
+      })
+      .catch(next)
+  }
+  else {
+    fetchArticleById(article_id)
+      .then(([article]) => {
+        delete article['comment_count']
+        res.status(200).send({article})
+      })
+      .catch(next);
+  }
 };
 
 exports.getArticles = (req, res, next) => {
