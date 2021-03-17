@@ -1,13 +1,13 @@
 const dbConnection = require("../db/dbConnection");
 
-exports.updateCommentById = (id, votes) => {
+exports.updateCommentById = (id, votes = 0) => {
     return dbConnection
         .from('comments')
         .where({
             comment_id: id
         })
         .increment('votes', votes)
-        .returning('*')
+        .returning(["comment_id", "votes", "created_at", "author", "body"])
 };
 
 exports.removeCommentById = (id) => {
@@ -31,7 +31,7 @@ exports.createCommentByArticleId = (id, contents) => {
     return dbConnection
         .from("comments")
         .insert(insertIt)
-        .returning("*")
+        .returning(["comment_id", "votes", "created_at", "author", "body"])
   };
   
   exports.fetchCommentsByArticleId = (id, query) => {
@@ -40,7 +40,7 @@ exports.createCommentByArticleId = (id, contents) => {
       .where({
         article_id: id,
       })
-      .returning("comment_id", "votes", "created_at", "author", "body")
+      .select("comment_id", "votes", "created_at", "author", "body")
       .modify((queryBuilder) => {
         let order = "desc";
         let sort_by = 'created_at'
@@ -53,3 +53,19 @@ exports.createCommentByArticleId = (id, contents) => {
         queryBuilder.orderBy(sort_by, order);
       });
   };
+
+exports.checkIfCommentExists = (id) => {
+  return dbConnection
+    .from('comments')
+    .where({
+      comment_id: id
+    })
+    .then(([comment]) => {
+      if (comment === undefined) {
+        return Promise.reject({
+          status: 404,
+          msg: 'Comment not found'
+        })
+      }
+    })
+}
