@@ -12,6 +12,16 @@ afterAll(() => {
 });
 
 describe("/api", () => {
+  describe('GET request', () => {
+    test('200 - responds with a JSON describing all the available endpoints on the API', () => {
+      return request(app)
+        .get('/api')
+        .expect(200)
+        .then(({body}) => {
+          console.log(body)
+        })
+    })
+  })
   describe("/topics", () => {
     describe("GET request", () => {
       test("returns status 200 and the topics", () => {
