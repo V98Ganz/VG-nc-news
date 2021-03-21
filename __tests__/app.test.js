@@ -12,16 +12,16 @@ afterAll(() => {
 });
 
 describe("/api", () => {
-  describe('GET request', () => {
-    test('200 - responds with a JSON describing all the available endpoints on the API', () => {
+  describe("GET request", () => {
+    test("200 - responds with a JSON describing all the available endpoints on the API", () => {
       return request(app)
-        .get('/api')
+        .get("/api")
         .expect(200)
-        .then(({body}) => {
-          console.log(body)
-        })
-    })
-  })
+        .then(({ body: { endpoints } }) => {
+          expect(typeof endpoints).toBe("object");
+        });
+    });
+  });
   describe("/topics", () => {
     describe("GET request", () => {
       test("returns status 200 and the topics", () => {
@@ -66,16 +66,16 @@ describe("/api", () => {
         });
       });
     });
-    describe('ERRORS', () => {
-      test('405 - PUT method not allowed', () => {
+    describe("ERRORS", () => {
+      test("405 - PUT method not allowed", () => {
         return request(app)
-          .put('/api/users/butter_bridge')
+          .put("/api/users/butter_bridge")
           .expect(405)
-          .then(({body: {msg}}) => {
-            expect(msg).toBe('Method not allowed')
-          })
-      })
-    })
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Method not allowed");
+          });
+      });
+    });
   });
   describe("/articles", () => {
     describe("GET", () => {
@@ -299,6 +299,37 @@ describe("/api", () => {
             });
           });
       });
+    });
+    describe("DELETE", () => {
+      test("204 - article has been deleted according to it's id", () => {
+        return request(app)
+          .delete("/api/articles/1")
+          .expect(204)
+          .then(() => {
+            return dbConnection.select("*").from("articles").where({
+              article_id: 1,
+            });
+          })
+          .then((article) => {
+            expect(article).toHaveLength(0);
+          });
+      });
+      test('204 - comments are also deleted in consequence', () => {
+        return request(app)
+          .delete('/api/articles/1')
+          .expect(204)
+          .then(() => {
+            return dbConnection.select('*').from('comments').where({
+              article_id: 1
+            })
+          })
+          .then((comments) => {
+            expect(comments).toHaveLength(0)
+          })
+      })
+      test('404 - article wasn\'t fount', () => {
+        
+      })
     });
     describe("/articles/.../comments", () => {
       describe("POST", () => {
@@ -534,11 +565,9 @@ describe("/api", () => {
       });
     });
   });
-  describe('ERRORS - Root level', () => {
-    test('405 - DELETE method not allowed', () => {
-      return request(app)
-        .delete('/api')
-        .expect(405)
-    })
-  })
+  describe("ERRORS - Root level", () => {
+    test("405 - DELETE method not allowed", () => {
+      return request(app).delete("/api").expect(405);
+    });
+  });
 });

@@ -103,3 +103,23 @@ exports.checkIfArticleExists = (id) => {
       }
     })
 }
+
+exports.removeArticleById = (id) => {
+  return dbConnection
+    .from('comments')
+    .del()
+    .where({
+      article_id: id
+    })
+    .then(() => {
+      return dbConnection
+        .from('articles')
+        .del()
+        .where({
+          article_id: id
+        }) 
+    })
+    .then((results) => {
+      return results
+    })
+}
