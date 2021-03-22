@@ -37,6 +37,25 @@ describe("/api", () => {
           });
       });
     });
+    describe('POST request', () => {
+      test('201 - created a new topic', () => {
+        return request(app)
+          .post('/api/topics')
+          .send({
+            slug: 'cabin building',
+            description: 'Let\'s build a cabin in the woods!!'
+          })
+          .expect(201)
+          .then(({body}) => {
+            expect(body).toEqual({
+              topic: {
+                slug: 'cabin building',
+                description: "Let's build a cabin in the woods!!"
+              }
+            })
+          })
+      })
+    })
   });
   describe("/users", () => {
     describe("GET request", () => {
@@ -328,7 +347,12 @@ describe("/api", () => {
           })
       })
       test('404 - article wasn\'t fount', () => {
-        
+        return request(app)
+          .delete('/api/articles/71')
+          .expect(404)
+          .then(({body: {msg}}) => {
+            expect(msg).toBe('Article not found')
+          })
       })
     });
     describe("/articles/.../comments", () => {

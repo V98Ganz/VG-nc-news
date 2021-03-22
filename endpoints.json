@@ -10,7 +10,14 @@
     }
   },
   "POST /api/topics": {
-    "not done":""
+    "description": "accepts a topic object and posts it in the database",
+    "queries": [],
+    "exampleResponse": {
+      "topic": {
+        "slug": "cabin building",
+        "description": "Let's build a cabin in the woods!!"
+      }
+    }
   },
   "GET /api/users": {
     "not done": ""
@@ -62,7 +69,9 @@
     }
   },
   "DELETE /api/articles/:article_id": {
-    "not done":""
+    "description": "removes an article entry from the database in conjunction with its comments",
+    "queries": [],
+    "exampleResponse": ""
   },
   "GET /api/articles/:article_id/comments": {
     "description": "serves and array with all the article comments",

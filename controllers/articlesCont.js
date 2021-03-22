@@ -4,9 +4,9 @@ const {
   fetchArticles,
   checkIfTopicExists,
   checkIfArticleExists,
-  removeArticleById
+  removeArticleById,
 } = require("../models/articles");
-const {checkIfUserExists} = require('../models/users')
+const { checkIfUserExists } = require("../models/users");
 
 exports.getArticlesById = (req, res, next) => {
   const { article_id } = req.params;
@@ -25,13 +25,12 @@ exports.patchArticleById = (req, res, next) => {
       .then(([article]) => {
         res.status(201).send({ article });
       })
-      .catch(next)
-  }
-  else {
+      .catch(next);
+  } else {
     fetchArticleById(article_id)
       .then(([article]) => {
-        delete article['comment_count']
-        res.status(200).send({article})
+        delete article["comment_count"];
+        res.status(200).send({ article });
       })
       .catch(next);
   }
@@ -39,12 +38,12 @@ exports.patchArticleById = (req, res, next) => {
 
 exports.getArticles = (req, res, next) => {
   const query = req.query;
-  const promises = [fetchArticles(query)]
+  const promises = [fetchArticles(query)];
   if (query.author) {
-    promises.push(checkIfUserExists(query.author))
+    promises.push(checkIfUserExists(query.author));
   }
   if (query.topic) {
-    promises.push(checkIfTopicExists(query.topic))
+    promises.push(checkIfTopicExists(query.topic));
   }
   Promise.all(promises)
     .then(([articles]) => {
@@ -55,8 +54,13 @@ exports.getArticles = (req, res, next) => {
 
 exports.deleteArticleById = (req, res, next) => {
   const { article_id } = req.params;
-  removeArticleById(article_id).then((article) => {
-    res.status(204).send({ article })
-  })
-  .catch(next)
-}
+  checkIfArticleExists(article_id)
+    .then((returnedPromise) => {
+      if (!returnedPromise) {
+        removeArticleById(article_id).then((article) => {
+          res.status(204).send({ article });
+        });
+      }
+    })
+    .catch(next);
+};
