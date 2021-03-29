@@ -85,6 +85,27 @@ describe("/api", () => {
         });
       });
     });
+    describe('POST request', () => {
+      test('201 - created new user', () => {
+        return request(app)
+          .post('/api/users')
+          .expect(201)
+          .send({
+            username: 'tickle122',
+            name: 'Tom Tickle',
+            avatar_url: 'https://vignette.wikia.com'
+          })
+          .then(({body}) => {
+            expect(body).toEqual({
+              user: {
+                username: 'tickle122',
+                name: 'Tom Tickle',
+                avatar_url: 'https://vignette.wikia.com'
+              }
+            })
+          })
+      })
+    })
     describe("ERRORS", () => {
       test("405 - PUT method not allowed", () => {
         return request(app)

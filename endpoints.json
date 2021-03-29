@@ -20,10 +20,18 @@
     }
   },
   "GET /api/users": {
-    "not done": ""
+    "description": ""
   },
   "POST /api/users": {
-    "not done":""
+    "description": "accepts a user object and posts it in the users table of the database",
+    "queries": [],
+    "exampleResponse": {
+      "user": {
+        "username": "tickle122",
+        "name": "Tom Tickle",
+        "avatar_url": "https://vignette.wikia.com"
+      }
+    }
   },
   "GET /api/users/:username": {
     "description": "serves an objects of the required user",

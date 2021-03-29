@@ -22,3 +22,14 @@ exports.checkIfUserExists = (username) => {
       }
     });
 };
+
+exports.createUser = (userInfo) => {
+  return dbConnection
+    .from('users')
+    .insert({
+      username: userInfo.username,
+      name: userInfo.name,
+      avatar_url: userInfo.avatar_url
+    })
+    .returning('*')
+}
