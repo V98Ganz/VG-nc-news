@@ -50,26 +50,36 @@ exports.fetchArticles = (query) => {
       let column = "created_at";
       let filterByAuthor = true;
       let filterByTopic = true;
+      let limit = 10;
+      let offset = 0;
       if (query.sort_by) {
         column = query.sort_by;
-      }
+      };
       if (query.order) {
         order = query.order;
-      }
+      };
       if (query.author) {
         filterByAuthor = {
           "articles.author": query.author,
         };
-      }
+      };
       if (query.topic) {
         filterByTopic = {
           "articles.topic": query.topic,
         };
-      }
+      };
+      if (query.limit) {
+        limit = query.limit;
+      };
+      if (query.p) {
+        offset = (query.p - 1) * limit;
+      };
+      queryBuilder.limit(limit)
+      queryBuilder.offset(offset)
       queryBuilder.where(filterByAuthor);
       queryBuilder.where(filterByTopic);
       queryBuilder.orderBy(column, order);
-    });
+    })
 };
 
 exports.checkIfTopicExists = (topic) => {
@@ -121,5 +131,46 @@ exports.removeArticleById = (id) => {
     })
     .then((results) => {
       return results
+    })
+}
+
+exports.getTotalCount = (query) => {
+  return dbConnection
+    .select(
+      "articles.author",
+      "title",
+      "articles.article_id",
+      "topic",
+      "articles.created_at",
+      "articles.votes"
+    )
+    .from("articles")
+    .count("comments.article_id as comment_count")
+    .groupBy("articles.article_id")
+    .leftJoin("comments", "articles.article_id", "=", "comments.article_id")
+    .modify((queryBuilder) => {
+      let order = "desc";
+      let column = "created_at";
+      let filterByAuthor = true;
+      let filterByTopic = true;
+      if (query.sort_by) {
+        column = query.sort_by;
+      };
+      if (query.order) {
+        order = query.order;
+      };
+      if (query.author) {
+        filterByAuthor = {
+          "articles.author": query.author,
+        };
+      };
+      if (query.topic) {
+        filterByTopic = {
+          "articles.topic": query.topic,
+        };
+      };
+      queryBuilder.where(filterByAuthor);
+      queryBuilder.where(filterByTopic);
+      queryBuilder.orderBy(column, order);
     })
 }

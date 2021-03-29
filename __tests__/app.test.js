@@ -137,7 +137,7 @@ describe("/api", () => {
       describe("just articles", () => {
         test("200 - responds with an array of article objects", () => {
           return request(app)
-            .get("/api/articles")
+            .get("/api/articles?limit=12")
             .expect(200)
             .then(({ body: { articles } }) => {
               expect(articles.length).toBe(12);
@@ -158,7 +158,7 @@ describe("/api", () => {
         describe("Accepts queries, defaults to date", () => {
           test("testing defaults", () => {
             return request(app)
-              .get("/api/articles")
+              .get("/api/articles?limit=12")
               .expect(200)
               .then(({ body: { articles } }) => {
                 expect(articles.length).toBe(12);
@@ -169,7 +169,7 @@ describe("/api", () => {
           });
           test("can sort_by valid columns and set order", () => {
             return request(app)
-              .get("/api/articles?sort_by=title&order=asc")
+              .get("/api/articles?sort_by=title&order=asc&limit=12")
               .expect(200)
               .then(({ body: { articles } }) => {
                 expect(articles.length).toBe(12);
@@ -192,7 +192,7 @@ describe("/api", () => {
           });
           test("we can filter by topic", () => {
             return request(app)
-              .get("/api/articles?topic=mitch")
+              .get("/api/articles?topic=mitch&limit=11")
               .expect(200)
               .then(({ body: { articles } }) => {
                 expect(articles.length).toBe(11);
@@ -216,6 +216,46 @@ describe("/api", () => {
                 expect(filterByBoth).toBe(true);
               });
           });
+          test("there is limit per page, default 10", () => {
+            return request(app)
+              .get("/api/articles?limit=9")
+              .expect(200)
+              .then(({ body: { articles } }) => {
+                expect(articles).toHaveLength(9)
+              })
+          })
+          test("testing limit default", () => {
+            return request(app)
+            .get("/api/articles")
+            .expect(200)
+            .then(({ body: { articles } }) => {
+              expect(articles).toHaveLength(10)
+            })
+          })
+          test("the p query specifies the page", () => {
+            return request(app)
+              .get('/api/articles?p=2')
+              .expect(200)
+              .then(({ body: { articles } }) => {
+                expect(articles).toHaveLength(2)
+              })
+          })
+          test("checking page and limit in conjunction", () => {
+            return request(app)
+              .get('/api/articles?limit=4&p=3')
+              .expect(200)
+              .then(({ body: { articles } }) => {
+                expect(articles).toHaveLength(4)
+              })
+          })
+          test("adding the total_count property, displaying the total number of articles", () => {
+            return request(app)
+              .get('/api/articles')
+              .expect(200)
+              .then(({ body: { total_count }}) => {
+                expect(total_count).toBe(12)
+              })
+          })
           describe("ERRORS - QUERIES", () => {
             test("405 - invalid column", () => {
               return request(app)

@@ -1,5 +1,4 @@
 exports.sqlErrors = (err, req, res, next) => {
-  // console.log(err.code.slice(0, 1))
   const sqlBadRequests = ['42703', '22P02'];
   if (sqlBadRequests.includes(err.code)) {
     if (err.code.slice(0, 2) === '42') {

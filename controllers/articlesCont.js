@@ -5,6 +5,7 @@ const {
   checkIfTopicExists,
   checkIfArticleExists,
   removeArticleById,
+  getTotalCount,
 } = require("../models/articles");
 const { checkIfUserExists } = require("../models/users");
 
@@ -38,7 +39,7 @@ exports.patchArticleById = (req, res, next) => {
 
 exports.getArticles = (req, res, next) => {
   const query = req.query;
-  const promises = [fetchArticles(query)];
+  const promises = [fetchArticles(query), getTotalCount(query)];
   if (query.author) {
     promises.push(checkIfUserExists(query.author));
   }
@@ -46,8 +47,8 @@ exports.getArticles = (req, res, next) => {
     promises.push(checkIfTopicExists(query.topic));
   }
   Promise.all(promises)
-    .then(([articles]) => {
-      res.status(200).send({ articles });
+    .then(([articles, total_count]) => {
+      res.status(200).send({ total_count: total_count.length, articles });
     })
     .catch(next);
 };
