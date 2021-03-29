@@ -3,7 +3,7 @@ const dbConnection = require("../db/dbConnection");
 exports.fetchUserByUsername = (username) => {
   return dbConnection.select("*").from("users").where({
     username: username,
-  })
+  });
 };
 
 exports.checkIfUserExists = (username) => {
@@ -25,11 +25,17 @@ exports.checkIfUserExists = (username) => {
 
 exports.createUser = (userInfo) => {
   return dbConnection
-    .from('users')
+    .from("users")
     .insert({
       username: userInfo.username,
       name: userInfo.name,
-      avatar_url: userInfo.avatar_url
+      avatar_url: userInfo.avatar_url,
     })
-    .returning('*')
+    .returning("*");
+};
+
+exports.fetchUsers = () => {
+  return dbConnection
+    .from("users")
+    .returning("*")
 }

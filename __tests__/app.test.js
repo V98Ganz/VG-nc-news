@@ -37,28 +37,43 @@ describe("/api", () => {
           });
       });
     });
-    describe('POST request', () => {
-      test('201 - created a new topic', () => {
+    describe("POST request", () => {
+      test("201 - created a new topic", () => {
         return request(app)
-          .post('/api/topics')
+          .post("/api/topics")
           .send({
-            slug: 'cabin building',
-            description: 'Let\'s build a cabin in the woods!!'
+            slug: "cabin building",
+            description: "Let's build a cabin in the woods!!",
           })
           .expect(201)
-          .then(({body}) => {
+          .then(({ body }) => {
             expect(body).toEqual({
               topic: {
-                slug: 'cabin building',
-                description: "Let's build a cabin in the woods!!"
-              }
-            })
-          })
-      })
-    })
+                slug: "cabin building",
+                description: "Let's build a cabin in the woods!!",
+              },
+            });
+          });
+      });
+    });
   });
   describe("/users", () => {
-    describe("GET request", () => {
+    test("GET request - all users", () => {
+      return request(app)
+        .get("/api/users")
+        .expect(200)
+        .then(({ body: { users } }) => {
+          expect(users).toHaveLength(4);
+          users.forEach((user) => {
+            expect(user).toMatchObject({
+              username: expect.any(String),
+              name: expect.any(String),
+              avatar_url: expect.any(String),
+            });
+          });
+        });
+    });
+    describe("GET request - with a username", () => {
       test("returns status 200 and the required user", () => {
         return request(app)
           .get("/api/users/butter_bridge")
@@ -85,27 +100,27 @@ describe("/api", () => {
         });
       });
     });
-    describe('POST request', () => {
-      test('201 - created new user', () => {
+    describe("POST request", () => {
+      test("201 - created new user", () => {
         return request(app)
-          .post('/api/users')
+          .post("/api/users")
           .expect(201)
           .send({
-            username: 'tickle122',
-            name: 'Tom Tickle',
-            avatar_url: 'https://vignette.wikia.com'
+            username: "tickle122",
+            name: "Tom Tickle",
+            avatar_url: "https://vignette.wikia.com",
           })
-          .then(({body}) => {
+          .then(({ body }) => {
             expect(body).toEqual({
               user: {
-                username: 'tickle122',
-                name: 'Tom Tickle',
-                avatar_url: 'https://vignette.wikia.com'
-              }
-            })
-          })
-      })
-    })
+                username: "tickle122",
+                name: "Tom Tickle",
+                avatar_url: "https://vignette.wikia.com",
+              },
+            });
+          });
+      });
+    });
     describe("ERRORS", () => {
       test("405 - PUT method not allowed", () => {
         return request(app)
@@ -354,27 +369,27 @@ describe("/api", () => {
             expect(article).toHaveLength(0);
           });
       });
-      test('204 - comments are also deleted in consequence', () => {
+      test("204 - comments are also deleted in consequence", () => {
         return request(app)
-          .delete('/api/articles/1')
+          .delete("/api/articles/1")
           .expect(204)
           .then(() => {
-            return dbConnection.select('*').from('comments').where({
-              article_id: 1
-            })
+            return dbConnection.select("*").from("comments").where({
+              article_id: 1,
+            });
           })
           .then((comments) => {
-            expect(comments).toHaveLength(0)
-          })
-      })
-      test('404 - article wasn\'t fount', () => {
+            expect(comments).toHaveLength(0);
+          });
+      });
+      test("404 - article wasn't fount", () => {
         return request(app)
-          .delete('/api/articles/71')
+          .delete("/api/articles/71")
           .expect(404)
-          .then(({body: {msg}}) => {
-            expect(msg).toBe('Article not found')
-          })
-      })
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Article not found");
+          });
+      });
     });
     describe("/articles/.../comments", () => {
       describe("POST", () => {

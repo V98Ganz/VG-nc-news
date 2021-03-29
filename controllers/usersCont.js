@@ -2,6 +2,7 @@ const {
   fetchUserByUsername,
   checkIfUserExists,
   createUser,
+  fetchUsers,
 } = require("../models/users");
 
 exports.getUsernameByName = (req, res, next) => {
@@ -20,3 +21,9 @@ exports.postUser = (req, res, next) => {
   })
   .catch(next)
 };
+
+exports.getUsers = (req, res, next) => {
+  fetchUsers().then((users) => {
+    res.status(200).send({users})
+  })
+}

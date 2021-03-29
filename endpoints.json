@@ -20,7 +20,16 @@
     }
   },
   "GET /api/users": {
-    "description": ""
+    "description": "serves an array of objects with all the users",
+    "queries": [],
+    "exampleResponse": {
+      "users": [{
+        "username": "tickle122",
+        "name": "Tom Tickle",
+        "avatar_url": "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
+        }
+      ]
+    }
   },
   "POST /api/users": {
     "description": "accepts a user object and posts it in the users table of the database",
@@ -105,7 +114,7 @@
   },
   "POST /api/articles/:article_id/comments": {
     "description": "it accepts an object with a username and body properties and creates a new comment on the mentioned article, it returns the comment back",
-    "queries": [],
+    "queries": ["limit", "p"],
     "exampleResponse": {
       "comment": {
         "comment_id": 19,
@@ -118,8 +127,9 @@
   },
   "GET /api/articles": {
     "description": "serves an array of all topics",
-    "queries": ["author", "topic", "sort_by", "order"],
+    "queries": ["author", "topic", "sort_by", "order", "limit", "p"],
     "exampleResponse": {
+      "total_count": 12,
       "articles": [
         {
           "title": "Seafood substitutions are increasing",
@@ -130,9 +140,6 @@
         }
       ]
     }
-  },
-  "POST /api/articles": {
-    "not a requirement?":""
   },
   "PATCH /api/comments/:comment_id": {
     "description": "it accepts an object with the required inc_votes and it updates and returns the correct comment",
