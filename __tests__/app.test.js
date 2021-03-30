@@ -221,41 +221,41 @@ describe("/api", () => {
               .get("/api/articles?limit=9")
               .expect(200)
               .then(({ body: { articles } }) => {
-                expect(articles).toHaveLength(9)
-              })
-          })
+                expect(articles).toHaveLength(9);
+              });
+          });
           test("testing limit default", () => {
             return request(app)
-            .get("/api/articles")
-            .expect(200)
-            .then(({ body: { articles } }) => {
-              expect(articles).toHaveLength(10)
-            })
-          })
+              .get("/api/articles")
+              .expect(200)
+              .then(({ body: { articles } }) => {
+                expect(articles).toHaveLength(10);
+              });
+          });
           test("the p query specifies the page", () => {
             return request(app)
-              .get('/api/articles?p=2')
+              .get("/api/articles?p=2")
               .expect(200)
               .then(({ body: { articles } }) => {
-                expect(articles).toHaveLength(2)
-              })
-          })
+                expect(articles).toHaveLength(2);
+              });
+          });
           test("checking page and limit in conjunction", () => {
             return request(app)
-              .get('/api/articles?limit=4&p=3')
+              .get("/api/articles?limit=4&p=3")
               .expect(200)
               .then(({ body: { articles } }) => {
-                expect(articles).toHaveLength(4)
-              })
-          })
+                expect(articles).toHaveLength(4);
+              });
+          });
           test("adding the total_count property, displaying the total number of articles", () => {
             return request(app)
-              .get('/api/articles')
+              .get("/api/articles")
               .expect(200)
-              .then(({ body: { total_count }}) => {
-                expect(total_count).toBe(12)
-              })
-          })
+              .then(({ body: { total_count } }) => {
+                expect(total_count).toBe(12);
+              });
+          });
           describe("ERRORS - QUERIES", () => {
             test("405 - invalid column", () => {
               return request(app)
@@ -431,7 +431,7 @@ describe("/api", () => {
           });
       });
     });
-    describe("/articles/.../comments", () => {
+    describe("/articles/:article_id/comments", () => {
       describe("POST", () => {
         test("201 - created a new comment on designated article", () => {
           return request(app)
@@ -516,7 +516,7 @@ describe("/api", () => {
           });
           test("more examples", () => {
             return request(app)
-              .get("/api/articles/1/comments?order=asc")
+              .get("/api/articles/1/comments?order=asc&limit=15")
               .expect(200)
               .then(({ body: { comments } }) => {
                 expect(comments).toHaveLength(13);
@@ -524,6 +524,22 @@ describe("/api", () => {
                 expect(comments).toBeSortedBy("created_at", {
                   descending: false,
                 });
+              });
+          });
+          test("limit - limits the number of responses, default 10", () => {
+            return request(app)
+              .get("/api/articles/1/comments?limit=5")
+              .expect(200)
+              .then(({ body: { comments } }) => {
+                expect(comments).toHaveLength(5);
+              });
+          });
+          test("p - specifies the page at witch to start", () => {
+            return request(app)
+              .get("/api/articles/1/comments?p=2")
+              .expect(200)
+              .then(({ body: { comments } }) => {
+                expect(comments).toHaveLength(3);
               });
           });
           describe("ERRORS - Queries", () => {
